@@ -7,6 +7,7 @@ from pathlib import Path
 
 import click
 
+from . import __version__
 from .config import Settings
 from .core.pipeline import build_policy, run_batch
 from .core.scheduler import plan_summary, worst_state
@@ -31,8 +32,19 @@ def _settings(**overrides) -> Settings:
     return Settings(**{k: v for k, v in overrides.items() if v is not None})
 
 
+def _installed_version() -> str:
+    """The installed distribution's version, or the source tree's when running uninstalled
+    (`click.version_option(package_name=...)` raises in that case instead of answering)."""
+    from importlib.metadata import PackageNotFoundError, version
+
+    try:
+        return version("parallel-ops")
+    except PackageNotFoundError:
+        return __version__
+
+
 @click.group()
-@click.version_option(package_name="parallel-ops")
+@click.version_option(version=_installed_version())
 def main() -> None:
     """Concurrent batch operations behind a shared rate limiter and circuit breaker."""
 
