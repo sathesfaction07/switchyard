@@ -38,7 +38,7 @@ def _installed_version() -> str:
     from importlib.metadata import PackageNotFoundError, version
 
     try:
-        return version("parallel-ops")
+        return version("switchyard")
     except PackageNotFoundError:
         return __version__
 

@@ -105,7 +105,7 @@ def write_excel(results: Sequence[WorkResult], path: Path) -> None:
         from openpyxl.styles import Alignment, Font, PatternFill
     except ImportError as exc:
         raise ImportError(
-            "Excel output needs openpyxl - run: pip install 'parallel-ops[excel]'"
+            "Excel output needs openpyxl - run: pip install 'switchyard[excel]'"
         ) from exc
 
     path.parent.mkdir(parents=True, exist_ok=True)

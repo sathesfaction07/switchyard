@@ -1,8 +1,8 @@
-# ParallelOps — Technical Architecture
+# Switchyard — Technical Architecture
 
 ## Overview
 
-ParallelOps runs a batch of heterogeneous operations concurrently on a single asyncio event loop. Every item passes through a per-host circuit breaker and token bucket before the call is made, is retried according to an error taxonomy that distinguishes transient from settled failures, and has its response validated against a declared schema. HTTP and browser work are scheduled by the same governor and draw on the same guards.
+Switchyard runs a batch of heterogeneous operations concurrently on a single asyncio event loop. Every item passes through a per-host circuit breaker and token bucket before the call is made, is retried according to an error taxonomy that distinguishes transient from settled failures, and has its response validated against a declared schema. HTTP and browser work are scheduled by the same governor and draw on the same guards.
 
 **Design principle:** the guard ordering is the product. Breaker before limiter so a refused item spends nothing; retries inside the breaker so it hears one verdict per item, not per attempt; validation last and outside the retry so a contract problem is never mistaken for an outage.
 
@@ -12,7 +12,7 @@ ParallelOps runs a batch of heterogeneous operations concurrently on a single as
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                            CLI (parallel-ops)                                │
+│                            CLI (switchyard)                                │
 │                                                                             │
 │  ┌──────────────────┐  ┌────────────────────┐  ┌────────────────────────┐  │
 │  │ run              │  │ plan               │  │ doctor                 │  │
@@ -128,7 +128,7 @@ ParallelOps runs a batch of heterogeneous operations concurrently on a single as
 
 ### 1. CLI (`cli.py`)
 
-Three commands. Entry point `parallel-ops`.
+Three commands. Entry point `switchyard`.
 
 | Command | Purpose |
 |:--|:--|
@@ -238,7 +238,7 @@ Writers share `ROW_FIELDS` for a stable column order. Excel colours the outcome 
 ## Data Flow
 
 ```
-1.  parallel-ops run items.csv -o out/ --rate 20 --failure-threshold 2
+1.  switchyard run items.csv -o out/ --rate 20 --failure-threshold 2
 2.  CLI drops None overrides -> Settings(rate=20.0, failure_threshold=2, ...)
 3.  load_items() -> 6 WorkItem; a `region` column lands in extras
 4.  run_batch(): kinds = {API} -> build_workers builds ONLY ApiWorker
@@ -386,12 +386,12 @@ bash setup.sh --browser       # + Playwright and chromium
 bash setup.sh --all
 source .venv/bin/activate
 
-parallel-ops doctor
-parallel-ops plan data/sample_items.csv --rate 2
-parallel-ops run data/sample_items.csv -o out/
-parallel-ops run items.csv -o out/ --rate 2 --concurrency 4 --failure-threshold 3
-parallel-ops run items.csv -o out/ --schema none
-parallel-ops run items.csv -o out/ --ok-only --format excel
+switchyard doctor
+switchyard plan data/sample_items.csv --rate 2
+switchyard run data/sample_items.csv -o out/
+switchyard run items.csv -o out/ --rate 2 --concurrency 4 --failure-threshold 3
+switchyard run items.csv -o out/ --schema none
+switchyard run items.csv -o out/ --ok-only --format excel
 ```
 
 `setup.sh` does more than install. It reports worker availability, then asserts: 30 sequential acquires terminate and bill 2.0s of waiting; a clock that refuses to advance produces exactly one sleep rather than a spin; a bad payload is `INVALID` and not retried; three attempts record one breaker verdict; six 404s leave a five-failure breaker closed; an open circuit spends no token; and `--ok-only` narrows the CSV while the report keeps every row.

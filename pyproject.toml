@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "parallel-ops"
+name = "switchyard"
 version = "1.0.0"
 description = "Runs heterogeneous batch operations concurrently behind a shared per-host rate limiter and circuit breaker, validating every response against a schema"
 readme = "README.md"
@@ -27,7 +27,7 @@ dev = [
 ]
 
 [project.scripts]
-parallel-ops = "parallel_ops.cli:main"
+switchyard = "parallel_ops.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/parallel_ops"]

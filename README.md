@@ -1,4 +1,4 @@
-# ParallelOps
+# Switchyard
 
 Runs a batch of heterogeneous operations concurrently on one event loop, behind a per-host token bucket and circuit breaker, validating every response against a declared schema. HTTP and browser work are scheduled by the same governor and share the same guards.
 
@@ -49,7 +49,7 @@ Every result carries the reason it ended up where it did, so the output file exp
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                        CLI (parallel-ops)                                │
+│                        CLI (switchyard)                                │
 │                                                                         │
 │   run                    plan                   doctor                  │
 │   execute a batch        what would happen,     what this machine can   │
@@ -114,7 +114,7 @@ Every result carries the reason it ended up where it did, so the output file exp
 ## Project Structure
 
 ```
-parallel-ops/
+switchyard/
 ├── src/parallel_ops/
 │   ├── cli.py                 run / plan / doctor
 │   ├── config.py              Pydantic Settings, PO_ prefix
@@ -150,22 +150,22 @@ bash setup.sh --all
 source .venv/bin/activate
 
 # What can this machine run, and what is the policy?
-parallel-ops doctor
+switchyard doctor
 
 # What would this batch do? Calls nothing.
-parallel-ops plan data/sample_items.csv --rate 2
+switchyard plan data/sample_items.csv --rate 2
 
 # Run it
-parallel-ops run data/sample_items.csv -o out/
+switchyard run data/sample_items.csv -o out/
 
 # Slower, stricter, and shout sooner
-parallel-ops run items.csv -o out/ --rate 2 --concurrency 4 --failure-threshold 3
+switchyard run items.csv -o out/ --rate 2 --concurrency 4 --failure-threshold 3
 
 # See what an unfamiliar endpoint actually returns before committing to a contract
-parallel-ops run items.csv -o out/ --schema none
+switchyard run items.csv -o out/ --schema none
 
 # Emit only the clean rows. The JSON report still contains everything.
-parallel-ops run items.csv -o out/ --ok-only --format excel
+switchyard run items.csv -o out/ --ok-only --format excel
 ```
 
 Input is CSV or JSON with `item_id` and `host`; `path` and `kind` are optional. Any other column is carried through to the output, so a `region` or `owner` column survives the run.
@@ -312,7 +312,7 @@ A breaker answers one question: is this dependency unhealthy. A 404 is evidence 
 
 **Playwright shares the event loop instead of a thread pool.** A page load takes hundreds of milliseconds and yields throughout, so API items keep flowing while it waits. Running the browser in a thread pool would mean two concurrency budgets and two places to reason about the rate limit, and the per-host guards would have to be made thread-safe on top of being async-safe.
 
-**Everything is in memory and there is no checkpoint.** A 50,000-item batch holds 50,000 results, and an interrupted run starts over. AdaptiveFetch in this portfolio solves resumability and resource-adaptive batching; this project is about the guards, and adding a checkpoint store would have buried them. The two are complementary: AdaptiveFetch reacts to *local* pressure — memory, disk, RSS — while ParallelOps reacts to *remote* health. Neither subsumes the other, and I checked that before starting.
+**Everything is in memory and there is no checkpoint.** A 50,000-item batch holds 50,000 results, and an interrupted run starts over. Ballast in this portfolio solves resumability and resource-adaptive batching; this project is about the guards, and adding a checkpoint store would have buried them. The two are complementary: Ballast reacts to *local* pressure — memory, disk, RSS — while Switchyard reacts to *remote* health. Neither subsumes the other, and I checked that before starting.
 
 ---
 

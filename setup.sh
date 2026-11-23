@@ -24,7 +24,7 @@ Usage: bash setup.sh [options]
   -h          this message
 
 With no options you get a fully working install for API work items. The browser
-worker is optional and its absence is reported by `parallel-ops doctor` with the
+worker is optional and its absence is reported by `switchyard doctor` with the
 command needed to add it.
 USAGE
             exit 0 ;;
@@ -262,7 +262,7 @@ from pathlib import Path
 from parallel_ops.io import write_results
 from parallel_ops.models import BatchReport, Outcome, WorkerKind, WorkResult
 
-work = Path(tempfile.mkdtemp(prefix="parallel-ops-verify-"))
+work = Path(tempfile.mkdtemp(prefix="switchyard-verify-"))
 try:
     def row(item_id, outcome):
         return WorkResult(
@@ -308,9 +308,9 @@ Setup complete.
 
   source .venv/bin/activate
 
-  parallel-ops doctor                          # what can this machine run
-  parallel-ops plan data/sample_items.csv      # what would a run do; calls nothing
-  parallel-ops run data/sample_items.csv -o out/
+  switchyard doctor                          # what can this machine run
+  switchyard plan data/sample_items.csv      # what would a run do; calls nothing
+  switchyard run data/sample_items.csv -o out/
 
 Defaults are deliberately timid: 10 requests/s per host, 8 concurrent, 3 attempts.
 Raise them once you know what the dependency tolerates.

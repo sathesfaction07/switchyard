@@ -59,7 +59,7 @@ class BrowserWorker(Worker):
             return ""
         return (
             "playwright is not installed - run: "
-            "pip install 'parallel-ops[browser]' && playwright install chromium"
+            "pip install 'switchyard[browser]' && playwright install chromium"
         )
 
     async def _ensure_context(self):
