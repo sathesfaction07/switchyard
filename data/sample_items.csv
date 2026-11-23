@@ -1,0 +1,9 @@
+item_id,host,kind,path,region
+PO-1001,https://catalog.example.com,api,items/SKU-1001,us
+PO-1002,https://catalog.example.com,api,items/SKU-1002,us
+PO-1003,https://catalog.example.com,api,items/SKU-1003,uk
+PO-1004,https://catalog.example.com,api,items/SKU-1004,uk
+PO-1005,https://portal.example.com,api,listing/SKU-1005,de
+PO-1006,https://portal.example.com,api,listing/SKU-1006,de
+PO-1007,https://portal.example.com,browser,listing/SKU-1007,jp
+PO-1008,https://audit.example.com,api,record/SKU-1008,us

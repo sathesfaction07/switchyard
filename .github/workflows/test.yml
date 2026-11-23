@@ -1,0 +1,38 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install
+        run: pip install -e ".[dev,excel]"
+
+      - name: Lint
+        run: ruff check src tests
+
+      - name: Test
+        # A hang is a real failure mode here: the limiter bug in ADR-001 blocked
+        # forever rather than erroring. Bound the suite so CI reports it as a failure
+        # instead of burning a runner.
+        run: timeout 120 pytest -q --cov=parallel_ops --cov-report=term-missing
+
+      - name: Doctor runs without a network
+        run: parallel-ops doctor
+
+      - name: Plan makes no calls
+        run: parallel-ops plan data/sample_items.csv
