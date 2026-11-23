@@ -36,3 +36,25 @@ jobs:
 
       - name: Plan makes no calls
         run: parallel-ops plan data/sample_items.csv
+
+  test-windows:
+    # The Linux job runs the full suite plus this project's own checks. This job runs the
+    # test suite on Windows, where the default encoding is cp1252 and paths use backslashes:
+    # several projects in this portfolio shipped bugs that only failed there.
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: |
+          pip install -e ".[dev,excel]"
+
+      - name: Test
+        run: timeout 120 pytest -q
