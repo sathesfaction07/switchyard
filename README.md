@@ -312,7 +312,7 @@ A breaker answers one question: is this dependency unhealthy. A 404 is evidence 
 
 **Playwright shares the event loop instead of a thread pool.** A page load takes hundreds of milliseconds and yields throughout, so API items keep flowing while it waits. Running the browser in a thread pool would mean two concurrency budgets and two places to reason about the rate limit, and the per-host guards would have to be made thread-safe on top of being async-safe.
 
-**Everything is in memory and there is no checkpoint.** A 50,000-item batch holds 50,000 results, and an interrupted run starts over. Ballast in this portfolio solves resumability and resource-adaptive batching; this project is about the guards, and adding a checkpoint store would have buried them. The two are complementary: Ballast reacts to *local* pressure — memory, disk, RSS — while Switchyard reacts to *remote* health. Neither subsumes the other, and I checked that before starting.
+**Everything is in memory and there is no checkpoint.** A 50,000-item batch holds 50,000 results, and an interrupted run starts over. Ballast, a sibling project, solves resumability and resource-adaptive batching; this project is about the guards, and adding a checkpoint store would have buried them. The two are complementary: Ballast reacts to *local* pressure — memory, disk, RSS — while Switchyard reacts to *remote* health. Neither subsumes the other, and I checked that before starting.
 
 ---
 
